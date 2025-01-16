@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calcul des repas avec jauge et surveillance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .bouton {
+      margin: 5px;
+    }
+    .repas {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .repas input {
+      width: 50px;
+      margin-right: 10px;
+    }
+    .infos-repas {
+      margin: 5px 0;
+    }
+    .totaux {
+      margin-top: 20px;
+    }
+    .barre-progres {
+      width: 100%;
+      height: 20px;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .progression {
+      height: 100%;
+      width: 0;
+      background-color: rgb(173, 24, 24);
+      transition: width 0.3s, background-color 0.3s;
+    }
+    .avertissement {
+      color: red;
+      font-weight: bold;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+  
+    h3 {
+      margin-bottom: 10px;
+      color: #444;
+    }
+  
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    nav button {
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  
+    nav button:hover {
+      background-color: #0056b3;
+    }
+  
+    .section {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    .section h3 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+    }
+  
+    .formulaire-ajout-aliment input {
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: calc(33% - 10px);
+      box-sizing: border-box;
+    }
+  
+    .formulaire-ajout-aliment button {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+  
+    .formulaire-ajout-aliment button:hover {
+      background-color: #218838;
+    }
+  
+    .liste-repas {
+      list-style: none;
+      padding: 0;
+    }
+  
+    .repas {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+    }
+  
+    .btn-supprimer {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      align-self: flex-start;
+    }
+  
+    .btn-supprimer:hover {
+      background-color: #c82333;
+    }
+  
+    .totaux div {
+      margin-bottom: 15px;
+    }
+  
+    .barre-progres {
+      background-color: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+      position: relative;
+    }
+  
+    .progression {
+      height: 100%;
+      background-color: #28a745;
+      transition: width 0.3s ease-in-out;
+    }
+  
+    .avertissement {
+      color: #dc3545;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  
+    .total-sucres,
+    .total-acides-gras-satures {
+      font-weight: bold;
+    }
+    .liste-repas {
+     display: grid;
+     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+     gap: 10px;
+     padding: 0; 
+    }
+
+    .repas {
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+     padding: 10px;
+     border: 1px solid #ddd;
+     border-radius: 4px;
+     background-color: #f9f9f9;
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .repas p {
+    margin: 5px 0;
+    }
+
+    .repas label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    }
+
+    .input-portion {
+    margin-top: 5px;
+    }
+
+    .btn-supprimer {
+    align-self: flex-start;
+    margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <nav>
+    <button class="bouton" data-aliment-index="0">Pomme</button>
+    <button class="bouton" data-aliment-index="1">Banane</button>
+    <button class="bouton" data-aliment-index="2">Orange</button>
+    <button class="bouton" data-aliment-index="3">Poulet</button>
+    <button class="bouton" data-aliment-index="4">Riz</button>
+    <button class="bouton" data-aliment-index="5">Avocat</button>
+  </nav>
+
+  <div>
+    <h3>Repas sélectionnés :</h3>
+    <ul class="liste-repas"></ul>
+    <button class="bouton" id="vider-repas">Vider la liste des repas</button>
+  </div>
+
+  <div>
+    <h3>Ajouter un nouvel aliment à la liste :</h3>
+    <form class="formulaire-ajout-aliment">
+      <input type="text" class="nom-nouvel-aliment" placeholder="Nom de l'aliment" required>
+      <input type="number" class="calories-nouvel-aliment" placeholder="Calories" required>
+      <input type="number" class="proteines-nouvel-aliment" placeholder="Protéines" required>
+      <input type="number" class="graisses-nouvel-aliment" placeholder="Graisses" required>
+      <input type="number" class="glucides-nouvel-aliment" placeholder="Glucides" required>
+      <input type="number" class="sucres-nouvel-aliment" placeholder="Sucres" required>
+      <input type="number" class="acides-gras-satures-nouvel-aliment" placeholder="Acides gras saturés" required>
+      <button type="submit" class="bouton">Ajouter l'aliment</button>
+    </form>
+  </div>
+
+  <div class="totaux">
+    <h3>Besoins Journalier :</h3>
+    <div>
+      <label>Calories :</label>
+      <div class="barre-progres">
+        <div class="progression" id="progression-calories"></div>
+      </div>
+    </div>
+
+    <div>
+      <label>Protéines :</label>
+      <div class="barre-progres">
+        <div class="progression" id="progression-proteines"></div>
+      </div>
+    </div>
+
+    <div>
+      <label>Graisses :</label>
+      <div class="barre-progres">
+        <div class="progression" id="progression-graisses"></div>
+      </div>
+    </div>
+
+    <div>
+      <label>Glucides :</label>
+      <div class="barre-progres">
+        <div class="progression" id="progression-glucides"></div>
+      </div>
+    </div>
+
+    <h3>Surveillance des nutriments :</h3>
+    <div>
+      <label>Sucres (g) :</label>
+      <span class="total-sucres">0</span> / 50
+    </div>
+    <div>
+      <label>Acides gras saturés (g) :</label>
+      <span class="total-acides-gras-satures">0</span> / 20
+    </div>
+    <p class="avertissement" id="message-avertissement"></p>
+  </div>
+
+  <script>
+    const aliments = [
+      { name: "Pomme", calories: 95, proteines: 0.5, graisses: 0.3, glucides: 25, sucres: 19, acidesGrasSatures: 0.1 },
+      { name: "Banane", calories: 105, proteines: 1.3, graisses: 0.3, glucides: 27, sucres: 14, acidesGrasSatures: 0.1 },
+      { name: "Orange", calories: 62, proteines: 1.2, graisses: 0.2, glucides: 15, sucres: 12, acidesGrasSatures: 0 },
+      { name: "Poulet", calories: 165, proteines: 31, graisses: 3.6, glucides: 0, sucres: 0, acidesGrasSatures: 1 },
+      { name: "Riz", calories: 130, proteines: 2.7, graisses: 0.3, glucides: 28, sucres: 0, acidesGrasSatures: 0 },
+      { name: "Avocat", calories: 160, proteines: 2, graisses: 15, glucides: 9, sucres: 0.7, acidesGrasSatures: 2.1 },
+    ];
+
+    const besoinsJournalier = {
+      calories: 2000,
+      proteines: 75,
+      graisses: 70,
+      glucides: 250,
+      sucres: 50,
+      acidesGrasSatures: 20,
+    };
+
+    let totaux = { calories: 0, proteines: 0, graisses: 0, glucides: 0, sucres: 0, acidesGrasSatures: 0 };
+
+    const listeRepasElement = document.querySelector(".liste-repas");
+    const boutonViderRepas = document.querySelector("#vider-repas");
+
+    const progressionCalories = document.querySelector("#progression-calories");
+    const progressionProteines = document.querySelector("#progression-proteines");
+    const progressionGraisses = document.querySelector("#progression-graisses");
+    const progressionGlucides = document.querySelector("#progression-glucides");
+
+    const totalSucresEl = document.querySelector(".total-sucres");
+    const totalAcidesGrasSaturesEl = document.querySelector(".total-acides-gras-satures");
+    const messageAvertissementEl = document.querySelector("#message-avertissement");
+
+    // Ajouter un aliment à la liste
+    function ajouterRepas(indexAliment) {
+      const aliment = aliments[indexAliment];
+      const id = `repas-${indexAliment}-${Date.now()}`;
+
+      listeRepasElement.insertAdjacentHTML(
+        "beforeend",
+        `<li id="${id}" class="repas">
+           <p>${aliment.name}</p>
+           <label>
+             Portion (en grammes) :
+             <input type="number" value="100" min="1" class="input-portion" data-index="${indexAliment}" data-id="${id}" />
+           </label>
+           <div class="infos-repas" id="infos-${id}">
+             <p>Calories : ${(aliment.calories).toFixed(2)}</p>
+             <p>Protéines : ${(aliment.proteines).toFixed(2)} g</p>
+             <p>Graisses : ${(aliment.graisses).toFixed(2)} g</p>
+             <p>Glucides : ${(aliment.glucides).toFixed(2)} g</p>
+             <p>Sucres : ${(aliment.sucres).toFixed(2)} g</p>
+             <p>Acides gras saturés : ${(aliment.acidesGrasSatures).toFixed(2)} g</p>
+           </div>
+           <button class="btn-supprimer" data-id="${id}">Retirer</button>
+         </li>`
+      );
+
+      document.querySelector(`#${id} .input-portion`).addEventListener("input", (e) => mettreAJourInfosNutriments(e, aliment));
+      document.querySelector(`#${id} .btn-supprimer`).addEventListener("click", () => retirerRepas(id));
+
+      mettreAJourTotaux();
+    }
+
+    function mettreAJourInfosNutriments(event, aliment) {
+      const input = event.target;
+      const portion = +input.value || 0;
+      const id = input.dataset.id;
+
+      const multiplicateur = portion / 100;
+
+      document.querySelector(`#infos-${id}`).innerHTML = `
+        <p>Calories : ${(aliment.calories * multiplicateur).toFixed(2)}</p>
+        <p>Protéines : ${(aliment.proteines * multiplicateur).toFixed(2)} g</p>
+        <p>Graisses : ${(aliment.graisses * multiplicateur).toFixed(2)} g</p>
+        <p>Glucides : ${(aliment.glucides * multiplicateur).toFixed(2)} g</p>
+        <p>Sucres : ${(aliment.sucres * multiplicateur).toFixed(2)} g</p>
+        <p>Acides gras saturés : ${(aliment.acidesGrasSatures * multiplicateur).toFixed(2)} g</p>
+      `;
+
+      mettreAJourTotaux();
+    }
+
+    function retirerRepas(id) {
+      const itemRepas = document.querySelector(`#${id}`);
+      if (itemRepas) {
+        itemRepas.remove();
+      }
+      mettreAJourTotaux();
+    }
+
+    function mettreAJourTotaux() {
+      totaux = { calories: 0, proteines: 0, graisses: 0, glucides: 0, sucres: 0, acidesGrasSatures: 0 };
+
+      document.querySelectorAll(".repas").forEach((repas) => {
+        const inputPortion = repas.querySelector(".input-portion");
+        const portion = +inputPortion.value || 0;
+        const aliment = aliments[inputPortion.dataset.index];
+        const multiplicateur = portion / 100;
+
+        totaux.calories += aliment.calories * multiplicateur;
+        totaux.proteines += aliment.proteines * multiplicateur;
+        totaux.graisses += aliment.graisses * multiplicateur;
+        totaux.glucides += aliment.glucides * multiplicateur;
+        totaux.sucres += aliment.sucres * multiplicateur;
+        totaux.acidesGrasSatures += aliment.acidesGrasSatures * multiplicateur;
+      });
+
+      mettreAJourBarreDeProgres(progressionCalories, totaux.calories, besoinsJournalier.calories);
+      mettreAJourBarreDeProgres(progressionProteines, totaux.proteines, besoinsJournalier.proteines);
+      mettreAJourBarreDeProgres(progressionGraisses, totaux.graisses, besoinsJournalier.graisses);
+      mettreAJourBarreDeProgres(progressionGlucides, totaux.glucides, besoinsJournalier.glucides);
+
+      totalSucresEl.textContent = totaux.sucres.toFixed(2);
+      totalAcidesGrasSaturesEl.textContent = totaux.acidesGrasSatures.toFixed(2);
+
+      if (totaux.sucres > besoinsJournalier.sucres || totaux.acidesGrasSatures > besoinsJournalier.acidesGrasSatures) {
+        messageAvertissementEl.textContent = "Avertissement : Vous dépassez les limites pour les sucres ou les acides gras saturés !";
+      } else {
+        messageAvertissementEl.textContent = "";
+      }
+    }
+
+    function mettreAJourBarreDeProgres(barre, total, besoin) {
+      const pourcentage = Math.min((total / besoin) * 100, 100);
+      barre.style.width = `${pourcentage}%`;
+      const teinte = (pourcentage / 100) * 120; // 0% => rouge, 100% => vert
+      barre.style.backgroundColor = `hsl(${teinte}, 100%, 50%)`;
+    }
+
+    boutonViderRepas.addEventListener("click", () => {
+      listeRepasElement.innerHTML = "";
+      mettreAJourTotaux();
+    });
+
+    document.querySelector(".formulaire-ajout-aliment").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+    document.querySelector(".formulaire-ajout-aliment").reset();
+    });
+      const boutons = document.querySelectorAll(".bouton");
+      for (let i = 0; i < boutons.length; i++) {
+      boutons[i].addEventListener("click", (e) => {
+      ajouterRepas(e.target.dataset.alimentIndex);
+      });
+    }
+
+  </script>
+</body>
+</html>
